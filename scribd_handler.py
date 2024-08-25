@@ -57,6 +57,8 @@ def step_scribd(message: types.Message, bot: TeleBot):
                     "error checking link. Kindly restart.",
                 )
             else:
+                print(req.status_code)
+                print(req.text)
                 doc_key = req.json()["document"]["access_key"]
                 doc_img = req.json()["document"]["retina_image_url"]
                 title = req.json()["document"]["title"]
