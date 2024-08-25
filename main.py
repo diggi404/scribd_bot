@@ -9,6 +9,8 @@ from slideshare_handler import slideshare
 load_dotenv()
 bot = TeleBot(os.getenv("BOT_TOKEN"))
 
+book_dict = dict()
+
 
 @bot.message_handler(commands=["start"])
 def start_bot(message: types.Message):
@@ -17,7 +19,7 @@ def start_bot(message: types.Message):
 
 @bot.message_handler(func=lambda message: message.text == "Scribd 📚")
 def start_scribd(message: types.Message):
-    scribd(bot, message)
+    scribd(bot, message, book_dict)
 
 
 @bot.message_handler(func=lambda message: message.text == "Slideshare 🖥️")
@@ -32,7 +34,7 @@ def handle_callback_query(call: types.CallbackQuery):
     msg_id = call.message.id
 
     if button_data.startswith("scribd down_"):
-        scribd_download(bot, chat_id, msg_id, button_data)
+        scribd_download(bot, chat_id, msg_id, button_data, book_dict)
 
 
 bot.infinity_polling()

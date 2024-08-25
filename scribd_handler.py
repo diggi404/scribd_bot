@@ -4,17 +4,19 @@ import re
 import requests
 
 
-def scribd(bot: TeleBot, message: types.Message):
+def scribd(bot: TeleBot, message: types.Message, book_dict: dict):
     chat_id = message.from_user.id
     take_link = bot.send_message(
         chat_id,
         "<b>Send your scribd document link.</b>\n\neg. <code>https://www.scribd.com/document/519698629/the-seven-husbands-of-evelyn-hugo-a-novel</code>",
         parse_mode="HTML",
     )
-    bot.register_next_step_handler(take_link, lambda message: step_scribd(message, bot))
+    bot.register_next_step_handler(
+        take_link, lambda message: step_scribd(message, bot, book_dict)
+    )
 
 
-def step_scribd(message: types.Message, bot: TeleBot):
+def step_scribd(message: types.Message, bot: TeleBot, book_dict: dict):
     chat_id = message.from_user.id
 
     pattern = r"https:\/\/www\.scribd\.com\/document\/\d+\/[a-zA-Z0-9\-]+"
@@ -60,6 +62,7 @@ def step_scribd(message: types.Message, bot: TeleBot):
                 doc_img = req.json()["document"]["retina_image_url"]
                 title = req.json()["document"]["title"]
                 author = req.json()["document"]["author"]["name"]
+                book_dict[chat_id] = title
 
                 try:
                     img_req = requests.get(doc_img)
@@ -89,7 +92,9 @@ def step_scribd(message: types.Message, bot: TeleBot):
                     os.remove(f"{doc_id}.jpg")
 
 
-def scribd_download(bot: TeleBot, chat_id: int, msg_id: int, button_data: str):
+def scribd_download(
+    bot: TeleBot, chat_id: int, msg_id: int, button_data: str, book_dict: dict
+):
     doc_id = button_data.split("_")[1]
     doc_key = button_data.split("_")[2]
     msg = bot.send_message(chat_id, "Downloading...")
@@ -110,10 +115,11 @@ def scribd_download(bot: TeleBot, chat_id: int, msg_id: int, button_data: str):
             "Error downloading document. Kindly redownload.", chat_id, msg.id
         )
     else:
-        with open(f"my_book.pdf", "wb") as file:
+        title = book_dict[chat_id]
+        with open(f"{title}.pdf", "wb") as file:
             file.write(req.content)
 
-        with open(f"my_book.pdf", "rb") as document:
+        with open(f"{title}.pdf", "rb") as document:
             bot.send_document(chat_id, document)
         bot.edit_message_reply_markup(chat_id, msg_id, reply_markup=None)
         bot.edit_message_text("Download Complete ✅", chat_id, msg.id)
