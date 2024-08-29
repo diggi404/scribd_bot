@@ -123,4 +123,4 @@ def scribd_download(
             bot.send_document(chat_id, document)
         bot.edit_message_reply_markup(chat_id, msg_id, reply_markup=None)
         bot.edit_message_text("Download Complete ✅", chat_id, msg.id)
-        os.remove(f"my_book.pdf")
+        os.remove(f"{title}.pdf")
