@@ -19,7 +19,7 @@ def scribd(bot: TeleBot, message: types.Message, book_dict: dict):
 def step_scribd(message: types.Message, bot: TeleBot, book_dict: dict):
     chat_id = message.from_user.id
 
-    pattern = r"https:\/\/www\.scribd\.com\/document\/\d+\/[a-zA-Z0-9\-]+"
+    pattern = r"https:\/\/www\.scribd\.com\/(doc|document)\/\d+\/[a-zA-Z0-9\-]+"
     match = re.match(pattern, message.text.strip())
     if not match:
         bot.send_message(
